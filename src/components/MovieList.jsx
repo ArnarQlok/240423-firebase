@@ -1,5 +1,18 @@
 import { useEffect, useState } from "react";
 
+// Koppling till vår databas
+import { db, auth } from "../app/firebase";
+
+// Metoder för vår databas
+import {
+  collection,
+  doc,
+  getDocs,
+  addDoc,
+  deleteDoc,
+  updateDoc,
+} from "firebase/firestore";
+
 const MovieList = () => {
   // Lagra filmerna från firebase så vi kan visa dem - READ
   const [movieList, setMovieList] = useState([]);
@@ -12,11 +25,19 @@ const MovieList = () => {
   // State för att kunna uppdatera en existerande film - UPDATE
   const [updatedTitle, setUpdatedTitle] = useState("");
 
+  // Hämta collection referens
+  const movieCollection = collection(db, "movies");
+
   const getMovieList = async () => {
     try {
       // READ DATA FROM DATABASE
       // SET THE MOVIELIST STATE
-      getMovieList();
+      const response = await getDocs(movieCollection);
+      const data = response.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      setMovieList(data);
     } catch (err) {
       console.error(err);
     }
@@ -28,6 +49,13 @@ const MovieList = () => {
 
   const handleAddMovie = async () => {
     try {
+      await addDoc(movieCollection, {
+        title: newMovieTitle,
+        releaseDate: newReleaseDate,
+        hasOscar: isNewMovieOscar,
+        userId: auth?.currentUser?.uid,
+        userEmail: auth?.currentUser?.email,
+      });
       getMovieList();
     } catch (err) {
       console.error(err);
@@ -36,13 +64,18 @@ const MovieList = () => {
 
   const handleDeleteMovie = async (id) => {
     try {
+      const movieDoc = doc(db, "movies", id);
+      await deleteDoc(movieDoc);
       getMovieList();
     } catch (err) {
       console.error(err);
     }
   };
+
   const handleUpdateMovie = async (id) => {
     try {
+      const movieDoc = doc(db, "movies", id);
+      await updateDoc(movieDoc, { title: updatedTitle });
       getMovieList();
     } catch (err) {
       console.error(err);
@@ -74,13 +107,13 @@ const MovieList = () => {
         <label htmlFor="checkbox">Recieved an Oscar</label>
         <button onClick={handleAddMovie}>Submit Movie</button>
       </div>
-      <ul>
+      <ul style={{ listStyle: "none" }}>
         {movieList.map((movie) => (
           <li key={movie.id}>
             <h3>
               {movie.title} ({movie.releaseDate})
             </h3>
-            <p>{"No Oscar"}</p>
+            <p>{movie.hasOscar ? "Got Oscar" : "No Oscar"}</p>
             <button onClick={() => handleDeleteMovie(movie.id)}>
               Delete Movie
             </button>
