@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-import { auth, googleProvider } from "../app/firebase";
+import { db, auth, googleProvider } from "../app/firebase";
+import { collection, addDoc } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -16,6 +17,8 @@ const Auth = () => {
   console.log(auth?.currentUser?.email);
   console.log(auth?.currentUser?.photoURL);
 
+  const usersCollection = collection(db, "users");
+
   // Hantera inloggning medd Google konto
   const signInWithGoogle = async () => {
     try {
@@ -29,6 +32,11 @@ const Auth = () => {
   const handleCreateUser = async () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
+
+      await addDoc(usersCollection, {
+        authId: auth?.currentUser?.uid,
+        email: email,
+      });
     } catch (err) {
       console.error("Error creating user:", err);
     }

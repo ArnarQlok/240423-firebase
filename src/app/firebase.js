@@ -2,17 +2,17 @@
 
 import { initializeApp } from "firebase/app";
 
-import {getFirestore} from "firebase/firestore"
+import {getFirestore} from "firebase/firestore";
 
 import {getAuth, GoogleAuthProvider } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDHwec3cLOSg5bJSKWiIXbE0eJFalakuy8",
-  authDomain: "fir-lesson-6becb.firebaseapp.com",
-  projectId: "fir-lesson-6becb",
-  storageBucket: "fir-lesson-6becb.appspot.com",
-  messagingSenderId: "896807535461",
-  appId: "1:896807535461:web:32dde7ada90fa319cd978c"
+  apiKey: import.meta.env.VITE_API_KEY,
+  authDomain: import.meta.env.VITE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_APP_ID
 };
 
 // Initialize Firebase
